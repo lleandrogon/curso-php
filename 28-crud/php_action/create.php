@@ -1,4 +1,6 @@
 <?php
+// Sessão
+session_start();
 // Conexão
 require_once "db_connect.php";
 
@@ -8,11 +10,25 @@ if (isset($_POST["btn-cadastrar"])) {
     $email = mysqli_escape_string($connect, $_POST["email"]);
     $idade = mysqli_escape_string($connect, $_POST["idade"]);
 
+    if (!is_numeric($idade) || $idade <= 0) {
+        $_SESSION["mensagem"] = "Por favor, insira uma idade válida.";
+        header("Location: ../");
+        exit();
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION["mensagem"] = "Por favor, insira um email válido.";
+        header("Location: ../");
+        exit();
+    }
+
     $sql = "INSERT INTO clientes (nome, sobrenome, email, idade) VALUES ('$nome', '$sobrenome', '$email', '$idade')";
 
     if (mysqli_query($connect, $sql)) {
-        header("Location: ../index.php?sucesso");
+        $_SESSION["mensagem"] = "Cadastrado com sucesso";
+        header("Location: ../index.php");
     } else {
-        header("Location: ../index.php?erro");
+        $_SESSION["mensagem"] = "Erro ao cadastrar";
+        header("Location: ../index.php");
     }
 }
